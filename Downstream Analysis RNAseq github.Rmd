@@ -1,0 +1,161 @@
+---
+title: "Downstream Analysis RNAseq github"
+output: html_document
+date: "2024-05-22"
+---
+
+#Load pre-installed libraries
+```{r}
+
+library(ensembldb)
+library(clusterProfiler)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+library(writexl)
+library(BiocManager)
+library(tidyr)
+library(ggplot2)
+library(ggrepel)
+library(recount)
+library(DESeq2)
+library(tidyverse)
+library(ggpubr)
+library(EnhancedVolcano)
+library(EnsDb.Hsapiens.v86)
+library(msigdbr)
+library(clusterProfiler)
+library(dplyr)
+library(forcats)
+library(ggplotify)
+library(readr)
+library(gage)
+library(gageData)
+library(pathview)
+library(org.Hs.eg.db)
+
+```
+
+#Load your Differential Expression file into the environment 
+```{r}
+
+deseq2_output_file <- readxl::read_excel("your/path/to/your/file.xlsx")
+deseq2_output_file <- deseq2_output_file %>% arrange(desc(stat))
+
+```
+
+#Adjust parameters to select your DEGs
+```{r}
+
+deseq2_output_file$diffexpressed <- "NORMAL"
+deseq2_output_file$diffexpressed[deseq2_output_file$log2FoldChange > 1 & deseq2_output_file$pvalue<0.05] <- "UP"
+deseq2_output_file$diffexpressed[deseq2_output_file$log2FoldChange < -1 & deseq2_output_file$pvalue<0.05] <- "DOWN"
+
+DEGs <- filter(deseq2_output_file, diffexpressed=="DOWN" | diffexpressed=="UP")
+
+```
+
+#Enrichment Analysis (In case you have DEGs that pass the FDR threshold)
+```{r}
+
+Up_expressed_genes <- filter(deseq2_output_file, diffexpressed == "UP")
+Down_expressed_genes <- filter(deseq2_output_file, diffexpressed == "DOWN")
+over_expressed_genes <- na.omit(Up_expressed_genes$GeneName)
+beneath_expressed_genes <- na.omit(Down_expressed_genes$GeneName)
+
+egmt_deseq2 <- enricher(gene = over_expressed_genes, TERM2GENE = gene_sets)
+egmt_deseq2@result <- egmt_deseq2@result %>% arrange(desc(Count))
+edf_fills_deseq2 <- as.data.frame(egmt_deseq2@result)
+edf_fills_deseq2$expression <- "UP"
+view(edf_fills_deseq2)
+
+egmt_deseq22 <- enricher(gene = beneath_expressed_genes, TERM2GENE = gene_sets)
+egmt_deseq22@result <- egmt_deseq22@result %>% arrange(desc(Count))
+edf_fills_deseq22 <- as.data.frame(egmt_deseq22@result)
+edf_fills_deseq22$expression <- "DOWN"
+view(edf_fills_deseq22)
+
+
+Enrichment_fills_deseq2 <- rbind(edf_fills_deseq2, edf_fills_deseq22)
+
+
+```
+
+#Volcano Plot (you can manually set which genenames you want to be plotted adjusting pvalue and log2FoldChange values in the "geom_text_repel" part)
+```{r}
+
+
+ggplot(data=deseq2_output_file, aes(x=log2FoldChange, y=-log10(pvalue), col=diffexpressed)) +
+  geom_point(alpha = 0.6) +
+  geom_text_repel(data=subset(deseq2_output_file, (log2FoldChange < -3.5 & pvalue <= 0.05) | (log2FoldChange > 2.5 & pvalue < 0.001329548) | (log2FoldChange > 5 & pvalue < 0.03743642) | (log2FoldChange > 1 & pvalue < 2.065334e-05) | (log2FoldChange < -6.3 & pvalue > 0.05) | (log2FoldChange < -3.8 & pvalue < 0.05) | (log2FoldChange < -5.602427 & pvalue < 0.05) | (log2FoldChange > 8.269522 & pvalue > 0.05)),
+                  aes(label=GeneName), vjust=-0.5, hjust=0.5, size=3, col="black") +
+  theme_minimal() + 
+  scale_color_manual(values=c("blue", "black", "red")) + 
+  labs(x = "Log2 Fold Change",
+       y = "-log10(pvalue)",
+       color = "Differential Expression") +
+  theme(legend.position = "top") +
+  ylim(c(0, max(-log10(deseq2_output_file$pvalue)) + .2))
+
+
+```
+
+#Gene Set Enrichment Analysis (GSEA) (to beused when not many genes are signifcant by FDR)
+```{r}
+#Load the gene set database into the envirnoment 
+#Check https://www.gsea-msigdb.org/gsea/msigdb/index.jsp to see which database is better (by changing the catgeory part)
+
+
+gene_sets <- msigdbr(species = "Homo sapiens", category = "C5")
+gene_sets <- gene_sets %>% dplyr::select(gs_name, gene_symbol)
+
+
+ranks_deseq2 <- deseq2_output_file %>% distinct(GeneName, stat) %>% deframe()
+head(ranks_deseq2)
+
+gsea_deseq2 <- GSEA(geneList = ranks_deseq2, TERM2GENE = gene_sets)
+gsea_deseq2 <- gsea_deseq2 %>% mutate(Counts = str_count(core_enrichment, "/") + 1) %>% 
+  mutate(GeneRatio = Counts/setSize)
+view(gsea_deseq2@result)
+
+
+gseaplot2(gsea_deseq2, geneSetID = "GOBP_CELL_SURFACE_RECEPTOR_SIGNALING_PATHWAY_INVOLVED_IN_CELL_CELL_SIGNALING", title = "GOBP_CELL_SURFACE_RECEPTOR_SIGNALING_PATHWAY_INVOLVED_IN_CELL_CELL_SIGNALING")
+
+
+```
+
+#KEGG analysis
+```{r}
+
+deseq2_output_file$EntrezIDs <- mapIds(org.Hs.eg.db, deseq2_output_file$GeneName, "ENTREZID", "SYMBOL")
+deseq2_output_file <- na.omit(deseq2_output_file)
+
+#We can use log2FC to plot and the STAT value (like GSEA) to do the analysis
+foldchanges_deseq2 <- deseq2_output_file$log2FoldChange 
+names(foldchanges_deseq2) = deseq2_output_file$EntrezIDs
+head(foldchanges_deseq2)
+
+
+
+data("kegg.sets.hs")
+data("sigmet.idx.hs")
+kegg.sets.hs = kegg.sets.hs[sigmet.idx.hs]
+
+keggres_deseq2 = gage(exprs = foldchanges_deseq2, gsets = kegg.sets.hs, same.dir = TRUE, use.fold = FALSE, FDR.adj = FALSE)
+View(keggres_deseq2$less)
+View(keggres_deseq2$greater)
+
+keggres_deseq2pathways = data.frame(id = rownames(keggres_deseq2$less), keggres_deseq2$less) %>%
+  tibble::as_tibble() %>% 
+  filter(row_number() <= 5) %>%
+  .$id %>%
+  as.character()
+keggres_deseq2pathways
+
+keggres_deseq2IDs = substr(keggres_deseq2pathways, start = 1, stop = 8)
+keggres_deseq2IDs
+
+tmp = pathview(gene.data = foldchanges_deseq2, pathway.id = "hsa00190", species = "hsa")
+
+
+```
+

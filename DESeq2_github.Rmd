@@ -1,0 +1,152 @@
+---
+title: "DESeq2 github"
+output: html_document
+date: "2024-04-30"
+---
+
+#llibreries
+
+```{r}
+
+library(readxl)
+library(readr)
+library(tibble)
+library(dplyr)
+library(ggplot2)
+library(DESeq2)
+library(pheatmap)
+library(ggrepel)
+library(msigdbr)
+library(clusterProfiler)
+library(stringr)
+library(writexl)
+
+```
+
+#Raw Counts
+
+```{r}
+
+raw_counts <- readxl::read_excel("your/path/to/your/file.xlsx")
+
+```
+
+#You will need to change the metadata matrix according to your samples
+```{r}
+raw_counts <- raw_counts[ !duplicated(raw_counts$GeneName), ] # Remove duplicate genes
+
+muestras <- data.frame(grupo = c(rep("A1", 1), rep("A2", 1), rep("A3", 1),
+                                  rep("C1", 1), rep("C2", 1), rep("C3", 1)))
+
+raw_counts <-as.data.frame(raw_counts)
+raw_counts <- remove_rownames(raw_counts)
+raw_counts <- column_to_rownames(raw_counts, var = "GeneName") 
+raw_counts <- as.data.frame(raw_counts) 
+
+raw_counts <- as.matrix(raw_counts[apply(raw_counts,1,max)>3,]) # Samples should have at least 2 reads
+boxplot(raw_counts)
+
+data <- as.data.frame(raw_counts)
+colnames(data) <- muestras$grupo # set column names in data as rownames in meta
+```
+
+
+```{r}
+
+
+mean_counts <- apply(data[, 1:6], 1, mean)
+
+variance_counts <- apply(data[, 1:6], 1, var)
+
+df <- data.frame(mean_counts, variance_counts)
+ggplot(df) +
+  geom_point(aes(x=mean_counts, y=variance_counts)) + 
+  geom_line(aes(x=mean_counts, y=mean_counts, color="red")) +
+  scale_y_log10() +
+  scale_x_log10()
+
+```
+
+
+
+#Experimental design
+```{r}
+
+#Set the experimental design for your analysis, then create a DESeq object (dds).
+#To add a second variable and correct its effect you will need to: dds <- DESeqDataSetFromMatrix(countData = data, colData = meta, design = ~ grupo + secondvariable) (the second variable will need to be added to the meta file containig the data to every sample).
+
+meta <- data.frame(grupo = c(rep("pacient", 3), rep("control", 3)))
+
+dds <- DESeqDataSetFromMatrix(countData = data, colData = meta, design = ~ grupo)
+dds$grupo <- factor(dds$grupo, levels = c("control", "pacient"))
+
+
+dds <- estimateSizeFactors(dds) 
+sizeFactors(dds)
+```
+
+#Normalized Counts
+```{r}
+normalized_counts <- counts(dds, normalized=T)
+colnames(normalized_counts) <- colnames(raw_counts)
+
+normalized_countsDF <- rownames_to_column(as.data.frame(normalized_counts)) # To create an excel we need a data frame and to convert rownames to a column
+normalized_countsDF <- as.data.frame(normalized_countsDF)
+
+```
+
+#DESeq2
+```{r}
+dds <- DESeq(dds, test= "Wald")
+resultsNames(dds)
+
+colSums(counts(dds)) # raw counts per sample before normalization
+colSums(counts(dds, normalized=T))# raw counts per sample after normalization
+
+plotDispEsts(dds)
+
+```
+
+#Rlog Counts + PCA
+```{r}
+
+rld <- rlog(dds, blind=TRUE) 
+colnames(rld) <- paste0("rlog_",colnames(rld))
+
+
+
+plotPCA(rld, intgroup = "grupo")
+
+
+
+# Extract the rlog normalized counts from the object
+rld_mat <- assay(rld)    
+
+rld_cor <- cor(rld_mat)    
+head(rld_cor)  
+
+pheatmap(rld_cor) 
+
+rld_assay <- assay(rlog(dds, blind=FALSE))
+colnames(rld_assay) <- paste0("rlog_",colnames(rld_assay))
+
+#To create excel file of the rlog normalized counts
+rld_assay1 <- as.data.frame(rld_assay) 
+rld_assay1 <- rownames_to_column(rld_assay1, var = "GeneName")
+
+
+```
+
+#Output DESeq2
+```{r}
+
+res<-results(dds)
+head(results(dds, tidy=TRUE))
+
+deseq2 <- as.data.frame(res)
+deseq2 <- rownames_to_column(deseq2, var = "GeneName")
+deseq2 <- na.omit(deseq2)
+
+
+```
+
