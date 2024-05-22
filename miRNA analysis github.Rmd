@@ -1,0 +1,199 @@
+---
+title: "miRNA analysis"
+output: html_document
+date: "2024-05-22"
+---
+
+#Download the whole database at https://mirtarbase.cuhk.edu.cn/~miRTarBase/miRTarBase_2022/php/download.php
+```{r}
+
+mirTarBase <- readxl::read_excel("path/to/your/database/file.xlsxlsx")
+
+```
+
+#Generate a data frame for every individual miRNA you are interested in
+```{r}
+
+
+mir155 <- filter(mirTarBase, miRNA == "hsa-miR-155-3p" | miRNA == "hsa-miR-155-5p" | miRNA == "hsa-miR-155")
+colnames(mir155)[colnames(mir155) == "Target Gene"] <- "GeneName"
+
+mir146b <- filter(mirTarBase, miRNA == "hsa-miR-146b-3p" | miRNA == "hsa-miR-146b-5p" | miRNA == "hsa-miR-146b")
+colnames(mir146b)[colnames(mir146b) == "Target Gene"] <- "GeneName"
+
+mir125a <- filter(mirTarBase, miRNA == "hsa-miR-125a-3p" | miRNA == "hsa-miR-125a-5p" | miRNA == "hsa-miR-125a")
+colnames(mir125a)[colnames(mir125a) == "Target Gene"] <- "GeneName"
+
+mir181a2 <- filter(mirTarBase, miRNA == "hsa-miR-181a-2-3p" | miRNA == "hsa-miR-181a-2-5p" | miRNA == "hsa-miR-181a-2")
+colnames(mir181a2)[colnames(mir181a2) == "Target Gene"] <- "GeneName"
+
+mir486_2 <- filter(mirTarBase, miRNA == "hsa-miR-486-3p" | miRNA == "hsa-miR-486-5p" | miRNA == "hsa-miR-486")
+colnames(mir486_2)[colnames(mir486_2) == "Target Gene"] <- "GeneName"
+
+mirLet7a3 <- filter(mirTarBase, miRNA == "hsa-let-7a-3p" | miRNA == "hsa-let-7a-5p" | miRNA == "hsa-let-7a")
+colnames(mir486_2)[colnames(mir486_2) == "Target Gene"] <- "GeneName"
+colnames(mirLet7a3) <- colnames(mir181a2)
+
+mir224 <- filter(mirTarBase, miRNA == "hsa-miR-224-3p" | miRNA == "hsa-miR-224-5p" | miRNA == "hsa-miR-224")
+colnames(mir224)[colnames(mir224) == "Target Gene"] <- "GeneName"
+
+mir134 <- filter(mirTarBase, miRNA == "hsa-miR-134-3p" | miRNA == "hsa-miR-134-5p" | miRNA == "hsa-miR-134")
+colnames(mir134)[colnames(mir134) == "Target Gene"] <- "GeneName"
+
+mir664a <- filter(mirTarBase, miRNA == "hsa-miR-664a-3p" | miRNA == "hsa-miR-664a-5p" | miRNA == "hsa-miR-664a")
+colnames(mir664a)[colnames(mir664a) == "Target Gene"] <- "GeneName"
+
+mir212 <- filter(mirTarBase, miRNA == "hsa-miR-212-3p" | miRNA == "hsa-miR-212-5p" | miRNA == "hsa-miR-212")
+colnames(mir212)[colnames(mir212) == "Target Gene"] <- "GeneName"
+
+mir1248 <- filter(mirTarBase, miRNA == "hsa-miR-1248-3p" | miRNA == "hsa-miR-1248-5p" | miRNA == "hsa-miR-1248")
+colnames(mir1248)[colnames(mir1248) == "Target Gene"] <- "GeneName"
+
+mir3609 <- filter(mirTarBase, miRNA == "hsa-miR-3609-3p" | miRNA == "hsa-miR-3609-5p" | miRNA == "hsa-miR-3609")
+colnames(mir3609)[colnames(mir3609) == "Target Gene"] <- "GeneName"
+
+mir181d <- filter(mirTarBase, miRNA == "hsa-miR-181d-3p" | miRNA == "hsa-miR-181d-5p" | miRNA == "hsa-miR-181d")
+colnames(mir181d)[colnames(mir181d) == "Target Gene"] <- "GeneName"
+
+mir451a <- filter(mirTarBase, miRNA == "hsa-miR-451a-3p" | miRNA == "hsa-miR-451a-5p" | miRNA == "hsa-miR-451a")
+colnames(mir451a)[colnames(mir451a) == "Target Gene"] <- "GeneName"
+
+mir939 <- filter(mirTarBase, miRNA == "hsa-miR-939-3p" | miRNA == "hsa-miR-939-5p" | miRNA == "hsa-miR-939")
+colnames(mir939)[colnames(mir939) == "Target Gene"] <- "GeneName"
+
+mir122 <- filter(mirTarBase, miRNA == "hsa-miR-122-3p" | miRNA == "hsa-miR-122-5p" | miRNA == "hsa-miR-122")
+colnames(mir122)[colnames(mir122) == "Target Gene"] <- "GeneName"
+
+mir146a <- filter(mirTarBase, miRNA == "hsa-miR-146a-3p" | miRNA == "hsa-miR-146a-5p" | miRNA == "hsa-miR-146a")
+colnames(mir146a)[colnames(mir146a) == "Target Gene"] <- "GeneName"
+
+mir27a <- filter(mirTarBase, miRNA == "hsa-miR-27a-3p" | miRNA == "hsa-miR-27a-5p" | miRNA == "hsa-miR-27a")
+colnames(mir27a)[colnames(mir27a) == "Target Gene"] <- "GeneName"
+
+mir199b <- filter(mirTarBase, miRNA == "hsa-miR-199b-3p" | miRNA == "hsa-miR-199b-5p" | miRNA == "hsa-miR-199b")
+colnames(mir199b)[colnames(mir199b) == "Target Gene"] <- "GeneName"
+
+mir378a <- filter(mirTarBase, miRNA == "hsa-miR-378a-3p" | miRNA == "hsa-miR-378a-5p" | miRNA == "hsa-miR-378a")
+colnames(mir378a)[colnames(mir378a) == "Target Gene"] <- "GeneName"
+
+mir145 <- filter(mirTarBase, miRNA == "hsa-miR-145-3p" | miRNA == "hsa-miR-145-5p" | miRNA == "hsa-miR-145")
+colnames(mir145)[colnames(mir145) == "Target Gene"] <- "GeneName"
+
+mir103a1 <- filter(mirTarBase, miRNA == "hsa-miR-103a-3p" | miRNA == "hsa-miR-103a-5p" | miRNA == "hsa-miR-103a")
+colnames(mir103a1)[colnames(mir103a1) == "Target Gene"] <- "GeneName"
+
+mir409 <- filter(mirTarBase, miRNA == "hsa-miR-409-3p" | miRNA == "hsa-miR-409-5p" | miRNA == "hsa-miR-409")
+colnames(mir409)[colnames(mir409) == "Target Gene"] <- "GeneName"
+
+mir500a <- filter(mirTarBase, miRNA == "hsa-miR-500a-3p" | miRNA == "hsa-miR-500a-5p" | miRNA == "hsa-miR-500a")
+colnames(mir500a)[colnames(mir500a) == "Target Gene"] <- "GeneName"
+
+mir1285 <- filter(mirTarBase, miRNA == "hsa-miR-1285-3p" | miRNA == "hsa-miR-1285-5p" | miRNA == "hsa-miR-1285")
+colnames(mir1285)[colnames(mir1285) == "Target Gene"] <- "GeneName"
+
+mir99b <- filter(mirTarBase, miRNA == "hsa-miR-99b-3p" | miRNA == "hsa-miR-99b-5p" | miRNA == "hsa-miR-99b")
+colnames(mir99b)[colnames(mir99b) == "Target Gene"] <- "GeneName"
+
+mir4521 <- filter(mirTarBase, miRNA == "hsa-miR-4521-3p" | miRNA == "hsa-miR-4521-5p" | miRNA == "hsa-miR-4521")
+colnames(mir4521)[colnames(mir4521) == "Target Gene"] <- "GeneName"
+
+mir766 <- filter(mirTarBase, miRNA == "hsa-miR-766-3p" | miRNA == "hsa-miR-766-5p" | miRNA == "hsa-miR-766")
+colnames(mir766)[colnames(mir766) == "Target Gene"] <- "GeneName"
+
+mir500b <- filter(mirTarBase, miRNA == "hsa-miR-500b-3p" | miRNA == "hsa-miR-500b-5p" | miRNA == "hsa-miR-500b")
+colnames(mir500b)[colnames(mir500b) == "Target Gene"] <- "GeneName"
+
+mir144 <- filter(mirTarBase, miRNA == "hsa-miR-144-3p" | miRNA == "hsa-miR-144-5p" | miRNA == "hsa-miR-144")
+colnames(mir144)[colnames(mir144) == "Target Gene"] <- "GeneName"
+
+SNORD138 <- filter(mirTarBase, miRNA == "hsa-miR-3607-3p" | miRNA == "hsa-miR-3607-5p" | miRNA == "hsa-miR-3607")
+colnames(SNORD138)[colnames(SNORD138) == "Target Gene"] <- "GeneName"
+
+mir92a <- filter(mirTarBase, miRNA == "hsa-miR-92a-3p" | miRNA == "hsa-miR-92a-5p" | miRNA == "hsa-miR-92a")
+colnames(mir92a)[colnames(mir92a) == "Target Gene"] <- "GeneName"
+
+mir186 <- filter(mirTarBase, miRNA == "hsa-miR-186-3p" | miRNA == "hsa-miR-186-5p" | miRNA == "hsa-miR-186")
+colnames(mir186)[colnames(mir186) == "Target Gene"] <- "GeneName"
+
+mir26b <- filter(mirTarBase, miRNA == "hsa-miR-26b-3p" | miRNA == "hsa-miR-26b-5p" | miRNA == "hsa-miR-26b")
+colnames(mir26b)[colnames(mir26b) == "Target Gene"] <- "GeneName"
+
+mir4326 <- filter(mirTarBase, miRNA == "hsa-miR-4326-3p" | miRNA == "hsa-miR-4326-5p" | miRNA == "hsa-miR-4326")
+colnames(mir4326)[colnames(mir4326) == "Target Gene"] <- "GeneName"
+
+mir181b <- filter(mirTarBase, miRNA == "hsa-miR-181b-3p" | miRNA == "hsa-miR-181b-5p" | miRNA == "hsa-miR-181b")
+colnames(mir181b)[colnames(mir181b) == "Target Gene"] <- "GeneName"
+
+mir1292 <- filter(mirTarBase, miRNA == "hsa-miR-1292-3p" | miRNA == "hsa-miR-1292-5p" | miRNA == "hsa-miR-1292")
+colnames(mir1292)[colnames(mir1292) == "Target Gene"] <- "GeneName"
+
+mir1291 <- filter(mirTarBase, miRNA == "hsa-miR-1291-3p" | miRNA == "hsa-miR-1291-5p" | miRNA == "hsa-miR-1291")
+colnames(mir1291)[colnames(mir1291) == "Target Gene"] <- "GeneName"
+
+mir125a <- filter(mirTarBase, miRNA == "hsa-miR-125a-3p" | miRNA == "hsa-miR-125a-5p" | miRNA == "hsa-miR-125a")
+colnames(mir125a)[colnames(mir125a) == "Target Gene"] <- "GeneName"
+
+mir210 <- filter(mirTarBase, miRNA == "hsa-miR-210-3p" | miRNA == "hsa-miR-210-5p" | miRNA == "hsa-miR-210")
+colnames(mir210)[colnames(mir210) == "Target Gene"] <- "GeneName"
+
+mir212 <- filter(mirTarBase, miRNA == "hsa-miR-212-3p" | miRNA == "hsa-miR-212-5p" | miRNA == "hsa-miR-212")
+colnames(mir212)[colnames(mir212) == "Target Gene"] <- "GeneName"
+
+mir320a <- filter(mirTarBase, miRNA == "hsa-miR-320a-3p" | miRNA == "hsa-miR-320a-5p" | miRNA == "hsa-miR-320a")
+colnames(mir320a)[colnames(mir320a) == "Target Gene"] <- "GeneName"
+
+mir342 <- filter(mirTarBase, miRNA == "hsa-miR-342-3p" | miRNA == "hsa-miR-342-5p" | miRNA == "hsa-miR-342")
+colnames(mir342)[colnames(mir342) == "Target Gene"] <- "GeneName"
+
+mir1301 <- filter(mirTarBase, miRNA == "hsa-miR-1301-3p" | miRNA == "hsa-miR-1301-5p" | miRNA == "hsa-miR-1301")
+colnames(mir1301)[colnames(mir1301) == "Target Gene"] <- "GeneName"
+
+mir425 <- filter(mirTarBase, miRNA == "hsa-miR-425-3p" | miRNA == "hsa-miR-425-5p" | miRNA == "hsa-miR-425")
+colnames(mir425)[colnames(mir425) == "Target Gene"] <- "GeneName"
+
+
+
+```
+
+#Load your DESeq2 output file and generate a DEG file
+```{r}
+
+analisi_deseq2 <- readxl::read_excel("path/to/your/DESeq2/file.xlsxlsx")
+
+analisi_deseq2$diffexpressed <- "NORMAL"
+analisi_deseq2$diffexpressed[analisi_deseq2$log2FoldChange > 1 & analisi_deseq2$pvalue<0.05] <- "UP"
+analisi_deseq2$diffexpressed[analisi_deseq2$log2FoldChange < -1 & analisi_deseq2$pvalue<0.05] <- "DOWN"
+
+DifExpr_deseq2 <- filter(analisi_deseq2, diffexpressed=="DOWN" | diffexpressed=="UP")
+
+```
+
+#Do a file with all the genes affcted by your difeferentially expressed miRNA and check the DEGs
+```{r}
+
+
+all_diff_miRNA <- rbind(mir409, mir224, mir134, mir664a, mir212)
+
+targetted_pbmc_limma <- DifExpr[DifExpr$GeneName %in% all_diff_miRNA$GeneName, ]
+
+
+ggplot(data=targetted_pbmc_limma, aes(x=log2FoldChange, y=-log10(pvalue), col=diffexpressed)) +
+  geom_point(alpha = 0.6) +
+  geom_text_repel(data=subset(targetted_pbmc_limma, (log2FoldChange < -1.5 & pvalue <= 6.825532e-05) | (log2FoldChange > 2.5 & pvalue < 0.001329548) | (log2FoldChange > 5 & pvalue < 0.03743642) | (log2FoldChange > 1 & pvalue < 2.065334e-05) | (log2FoldChange < -3 & pvalue < 0.01) | (log2FoldChange < -3.8 & pvalue < 0.05) | (log2FoldChange < -5.602427 & pvalue < 0.05) | (log2FoldChange > 8.269522 & pvalue > 0.05)),
+                  aes(label=GeneName), vjust=-0.5, hjust=0.5, size=3, col="black") +
+  theme_minimal() + 
+  scale_color_manual(values=c("blue", "red")) + 
+  labs(x = "Log2 Fold Change",
+       y = "-log10(pvalue)",
+       color = "Differential Expression") +
+  theme(legend.position = "top") +
+  ylim(c(0, max(-log10(all_diff_miRNA$pvalue)) + .2))
+
+
+
+```
+
+
+```{r}
+```
+
